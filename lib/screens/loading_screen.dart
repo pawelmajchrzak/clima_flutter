@@ -1,59 +1,61 @@
-import 'dart:convert';
-
+import 'package:clima/screens/location_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../services/location.dart';
+import '../services/networking.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+const apiKey = 'b15535624271311e7eda816d5ba2911c';
 
 class LoadingScreen extends StatefulWidget {
+
+  LoadingScreen(this.locationWeather);
+
+  final locationWeather;
+
+
   @override
   _LoadingScreenState createState() => _LoadingScreenState();
+
+
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
+
+  late double latitude;
+  late double longitude;
+
   @override
   void initState() {
     super.initState();
-    getLocation();
-    getData();
+    getLocationData();
   }
-  void getLocation() async {
+
+  void getLocationData() async {
     Location location = Location();
     await location.getCurrentLocation();
-    print(location.getLatitude);
-    print(location.getLongitude);
+    latitude = location.getLatitude;
+    longitude = location.getLongitude;
+
+    NetworkHelper networkHelper = NetworkHelper('https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey&units=metric');
+
+    var weatherData = await networkHelper.getData();
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return LocationScreen();
+    }));
   }
 
-  void getData() async {
-    var url = Uri.parse('https://api.openweathermap.org/data/2.5/weather?lat=54&lon=18&appid=b15535624271311e7eda816d5ba2911c');
-    http.Response response = await http.get(url);
-    //print(response.body);
-    if (response.statusCode == 200) {
-      String data = response.body;
 
-      var decodedData = jsonDecode(data);
-
-      double temperature = decodedData['main']['temp'];
-      int condition = decodedData['weather'][0]['id'];
-      String cityName = decodedData['name'];
-
-
-
-      print(temperature);
-      print(condition);
-      print(cityName);
-
-
-      //print(data);
-    } else {
-      print(response.statusCode);
-    }
-
-    //print(response);
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: Center(
+        child: SpinKitDoubleBounce(
+          color: Colors.white,
+          size: 100.0,
+        ),
+      ),
+    );
   }
 }
