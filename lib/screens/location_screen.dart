@@ -36,7 +36,6 @@ class _LocationScreenState extends State<LocationScreen> {
         cityName = '';
         return;
       }
-      ;
       double temp = weatherData['main']['temp'];
       temperature = temp.toInt();
       var condition = weatherData['weather'][0]['id'];
@@ -83,6 +82,12 @@ class _LocationScreenState extends State<LocationScreen> {
                           MaterialPageRoute(builder: (context) {
                         return CityScreen();
                       }));
+                      print(typedName);
+                      if (typedName != null) {
+                        var weatherData =
+                            await weather.getCityWeather(typedName);
+                        updateUI(weatherData);
+                      }
                     },
                     child: Icon(
                       Icons.location_city,
